@@ -1,0 +1,8 @@
+#!/bin/sh
+head=$(git rev-parse HEAD)
+parents=$(git log --pretty=%P -n 1 $head)
+base=$(git merge-base $parents)
+mergerPath="PATH_TO_SSM_FOLDER"
+gradlePath="PATH_TO_GRADLE_BIN"
+mavenPath="PATH_TO_MAVEN_BIN"
+java -jar ${mergerPath}/static-semantic-merge-1.0-SNAPSHOT.jar $head  $parents $base $mergerPath $gradlePath $mavenPath

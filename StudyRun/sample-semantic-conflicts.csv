@@ -1,0 +1,2 @@
+Sample,LocallyObservableInterference,ManuallyAnalyzed,Commit,Project,Class,Declaration,BuildManager,OriginalVersion,TransformedVersion,OriginalWithoutDependenciesVersion,AdditionalChangesonSourceCode
+Roberto,No,AdditionalCheck,c39c19bc6b9231601f6bc7358e638a99adf37e0d,https://github.com/Netflix/SimianArmy,com.netflix.simianarmy.basic.BasicSimianArmyContext,BasicSimianArmyContext(String),Gradle,,,https://github.com/spgroup/mergedataset/tree/master/SimianArmy/c39c19bc6b9231601f6bc7358e638a99adf37e0d/original-without-dependencies,No

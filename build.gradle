@@ -1,0 +1,37 @@
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.codehaus.groovy:groovy-cli-commons:3.0.0'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.0'
+    implementation 'commons-io:commons-io:2.15.0'
+    compile 'org.codehaus.groovy:groovy-all:3.0.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation files ('dependencies/miningframework.jar')
+    compile "org.eclipse.jgit:org.eclipse.jgit:5.5.+"
+    compile files('dependencies/miningframework.jar')
+}
+
+jar {
+    from { (configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) } } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+    manifest {
+        attributes("Main-Class": "main.Main")
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

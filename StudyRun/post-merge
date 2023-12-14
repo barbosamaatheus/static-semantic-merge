@@ -1,0 +1,7 @@
+#!/bin/sh
+head=$1
+parents="${2} ${3}"
+base=$4
+echo $PWD
+mergerPath="C:/Users/DAVID/Documents/repositorios/TCC/miningForStudy"
+java -jar C:/Users/DAVID/Documents/repositorios/TCC/miningForStudy/git-driver-static-1.0-SNAPSHOT.jar $head  $parents $base $mergerPath

@@ -27,15 +27,15 @@ public class StaticAnalysisMerge {
     }
 
     public void run() {
-        DependenciesManager dependenciesManager = new DependenciesManager();
+        //DependenciesManager dependenciesManager = new DependenciesManager();
         MergeManager mergeManager = new MergeManager();
         BuildGenerator buildGenerator = new BuildGenerator(this.args[5], this.args[6]);
         CommitManager commitManager = new CommitManager(this.args);
-        Project project = new Project("project", System.getProperty("user.dir"));
+        Project project = new Project("project", this.args[7]);
         ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager();
 
         try {
-            dependenciesManager.copyAuxFilesToProject(this.args[4]);
+            //dependenciesManager.copyAuxFilesToProject(this.args[4]);
 
             MergeCommit mergeCommit = commitManager.buildMergeCommit();
 
@@ -83,7 +83,7 @@ public class StaticAnalysisMerge {
                 mergeManager.revertCommint(mergeCommit.getLeftSHA());
             }
 
-            dependenciesManager.deleteAuxFiles(this.args[4]);
+            //dependenciesManager.deleteAuxFiles(this.args[4]);
 
         } catch (IOException | InterruptedException /*| InterruptedException e*/e) {
             e.printStackTrace();

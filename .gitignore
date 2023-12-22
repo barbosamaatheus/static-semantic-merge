@@ -4,7 +4,6 @@
 
 ### Gradle ###
 .gradle
-/scripts
 /files
 /data
 /build

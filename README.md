@@ -51,3 +51,28 @@ Na raiz do projeto, você encontrará o script de exemplo post-merge, além das 
 
 StudyRun: Contém scripts para a execução de cenários específicos.
 dependencies: Inclui os scripts e os JARs das dependências (Mining Framework, Conflict Static Analysis, DiffJ e GroovyCSV).
+
+### Requisitos do Projeto
+É necessário que um cli do DiffJ esteja na pasta de dependências e que o diff (ferramenta de diff textual) esteja instalado.
+
+> Se estiver utilizando o Windows, será necessário instalar o [DiffUtils](http://gnuwin32.sourceforge.net/packages/diffutils.htm) manualmente. Após a instalação, adicione o diretório de instalação ao PATH nas suas variáveis de ambiente.
+
+Também é necessário instalar o Python versão 3.7.x ou mais recente. Isso é necessário para executar scripts que obtém arquivos de compilação e que converte os dados coletados para um formato utilizado pelas análises estáticas do SOOT invocadas por esta instância.
+
+> Se você estiver utilizando o Windows e encontrar um erro durante a execução indicando que o Python3 não foi encontrado pelo sistema, localize a pasta de instalação do Python e crie uma cópia do arquivo "python" com o nome "python3". Isso resolverá o problema de localização do Python3 no sistema.
+
+### Executando do Projeto
+
+A CLI possui a seguinte página de ajuda:
+```
+usage: java Main
+ -b <base>           the base commit
+ -gp <gradlePath>    path to gradle bin
+ -h <head>           the head commit
+ -mp <mavenPath>     path to marge folder
+ -mvp <mavenPath>    path to maven bin
+ -p <parents>        the parents commits
+ -ssm <mergerPath>   path to ssm folder
+```
+
+O resultado será escrito em `data/soot-results.csv`

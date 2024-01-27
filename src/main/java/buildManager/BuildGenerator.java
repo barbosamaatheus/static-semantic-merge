@@ -9,17 +9,19 @@ public class BuildGenerator {
 
     private String gradlePath;
     private String mavenPath;
+    private String mergePath;
 
-    public BuildGenerator(String gradlePath, String mavenPath) {
+    public BuildGenerator(String gradlePath, String mavenPath, String mergePath) {
         this.gradlePath = gradlePath;
         this.mavenPath = mavenPath;
+        this.mergePath = mergePath;
     }
 
     private String jarPath = "./build/libs";
 
     public Process generateBuild() throws IOException, InterruptedException {
         System.out.println("==== GENERATING BUILD ====");
-        File f = new File("gradlew.bat");
+        File f = new File(this.mergePath + "gradlew.bat");
         Process proc = null;
         if(f.exists() && !f.isDirectory()) {
             proc  = Runtime.getRuntime().exec("gradlew.bat build -x test");

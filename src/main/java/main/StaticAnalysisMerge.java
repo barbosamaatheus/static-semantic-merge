@@ -3,6 +3,7 @@ package main;
 import DependenciesManager.DependenciesManager;
 import buildManager.BuildGenerator;
 import csvManager.CsvManager;
+import entrypointManager.EntrypointManager;
 import gitManager.CollectedMergeMethodData;
 import gitManager.CommitManager;
 import gitManager.MergeManager;
@@ -29,10 +30,11 @@ public class StaticAnalysisMerge {
     public void run() {
         //DependenciesManager dependenciesManager = new DependenciesManager();
         MergeManager mergeManager = new MergeManager();
-        BuildGenerator buildGenerator = new BuildGenerator(this.args[5], this.args[6]);
+        BuildGenerator buildGenerator = new BuildGenerator(this.args[5], this.args[6], this.args[7]);
         CommitManager commitManager = new CommitManager(this.args);
         Project project = new Project("project", this.args[7]);
         ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager();
+        EntrypointManager entrypointManager = new EntrypointManager();
 
         try {
             //dependenciesManager.copyAuxFilesToProject(this.args[4]);
@@ -52,6 +54,8 @@ public class StaticAnalysisMerge {
 
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
+            entrypointManager.configureSoot(dest.getPath());
+
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();

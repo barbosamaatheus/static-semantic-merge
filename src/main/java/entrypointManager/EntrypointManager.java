@@ -1,6 +1,8 @@
 package entrypointManager;
 
+import soot.Body;
 import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
@@ -17,12 +19,14 @@ public class EntrypointManager {
                 "-f", "J",
                 "-w",
                 "--allow-phantom-refs",
-                "seu.pacote.MainClass"
+                "-p", "jb", "use-original-names:true",
+                "-p", "cg.spark", "enabled:true",
+                "org.example.Main"
         };
 
         // Executar o Analisador de Ponto de Entrada do Soot
         soot.Main.main(sootArgs);
-
+        Scene.v().loadNecessaryClasses();
         // Criar e obter o grafo de chamadas
         CallGraph callGraph = Scene.v().getCallGraph();
 
@@ -31,8 +35,12 @@ public class EntrypointManager {
     }
 
     private void displayCallGraph(CallGraph callGraph) {
-        // Iterar sobre as arestas do grafo de chamadas
-        Iterator<Edge> edges = callGraph.iterator();
+        SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
+        SootMethod mainMethod = sootClass.getMethodByName("main"); // findMainMethod(sootClass);
+
+        //Iterator<Edge> edges = callGraph.iterator();
+        Iterator<Edge> edges = callGraph.edgesInto(mainMethod);
+
         while (edges.hasNext()) {
             Edge edge = edges.next();
             SootMethod srcMethod = (SootMethod) edge.getSrc();
@@ -45,4 +53,17 @@ public class EntrypointManager {
         }
     }
 
+
+    private static SootMethod findMainMethod(SootClass sootClass) {
+        for (SootMethod method : sootClass.getMethods()) {
+            if (isMainMethod(method)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isMainMethod(SootMethod method) {
+        return method.getName().equals("main");
+    }
 }

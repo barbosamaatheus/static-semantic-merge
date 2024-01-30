@@ -17,7 +17,7 @@ public class BuildGenerator {
         this.mergePath = mergePath;
     }
 
-    private String jarPath = "./build/libs";
+    private String jarPath = "build/libs";
 
     public Process generateBuild() throws IOException, InterruptedException {
         System.out.println("==== GENERATING BUILD ====");
@@ -40,7 +40,7 @@ public class BuildGenerator {
     }
 
     public File getBuildJar() {
-        File buildJarFolder = new File(this.jarPath);
+        File buildJarFolder = new File(this.mergePath + this.jarPath);
         File returnFile = null;
         for(File file : buildJarFolder.listFiles()) {
             if(!file.getName().contains("boot") && !this.getFileExtension(file.getName()).equals("war") &&

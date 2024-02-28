@@ -55,7 +55,7 @@ public class StaticAnalysisMerge {
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
             entrypointManager.configureSoot(dest.getPath());
-
+            entrypointManager.run(project, mergeCommit);
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();
@@ -79,12 +79,12 @@ public class StaticAnalysisMerge {
 
 
             RunSootAnalysisOutputProcessor runSootAnalysisOutputProcessor = new RunSootAnalysisOutputProcessor();
-            runSootAnalysisOutputProcessor.executeAllAnalyses(".");
+            runSootAnalysisOutputProcessor.executeAnalyses(".");
 
             File results = new File("./data/soot-results.csv");
 
             if(csvManager.hasConflict(results)){
-                mergeManager.revertCommint(mergeCommit.getLeftSHA());
+               // mergeManager.revertCommint(mergeCommit.getLeftSHA());
             }
 
             //dependenciesManager.deleteAuxFiles(this.args[4]);

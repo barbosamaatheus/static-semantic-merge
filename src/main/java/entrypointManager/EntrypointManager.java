@@ -1,5 +1,12 @@
 package entrypointManager;
 
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.alg.interfaces.LowestCommonAncestorAlgorithm;
+import org.jgrapht.alg.lca.NaiveLCAFinder;
+import org.jgrapht.alg.lca.TarjanLCAFinder;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
 import project.MergeCommit;
 import project.Project;
 import services.dataCollectors.modifiedLinesCollector.ModifiedLinesCollector;
@@ -25,8 +32,8 @@ public class EntrypointManager {
     }
 
     public void run(Project project,  MergeCommit mergeCommit){
-        Iterator<Edge> edges = getCallGraphFromMain("main");
-        displayCallGraph(edges);
+        Iterator<Edge> edges = getCallGraphFromMain();
+        //displayCallGraph(edges);
         Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
 
         Set<ModifiedMethod> left = new HashSet<>();
@@ -36,7 +43,7 @@ public class EntrypointManager {
              right.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
         }
 
-        //findCommonAncestor(edges, left, right);
+        findCommonAncestor(edges, left, right);
     }
 
     public void configureSoot(String classpath) {
@@ -58,10 +65,10 @@ public class EntrypointManager {
 
     }
 
-    private Iterator<Edge> getCallGraphFromMain(String mainClass){
+    private Iterator<Edge> getCallGraphFromMain(){
 
         SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
-        SootMethod mainMethod = sootClass.getMethodByName(mainClass); //main // findMainMethod(sootClass);
+        SootMethod mainMethod = sootClass.getMethodByName("main"); //main // findMainMethod(sootClass);
 
         // Criar e obter o grafo de chamadas
         CallGraph callGraph = Scene.v().getCallGraph();
@@ -116,30 +123,64 @@ public class EntrypointManager {
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
     private ModifiedMethod findCommonAncestorForPair(Iterator<Edge> edges, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> invertedGraph = createAndInvertedDirectedGraph(edges);
+
+        LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(invertedGraph);
+
+        //ModifiedMethod leftModifiedMethod = new ModifiedMethod("<org.example.Main: void l()>");
+        //ModifiedMethod rightModifiedMethod = new ModifiedMethod("<org.example.Main: void r2()>");
+
+        ModifiedMethod lca = lcaAlgorithm.getLCA(leftMethod, rightMethod);
+        System.out.println(lca);
         return null;
+
+       // return lcaAlgorithm.getLCA(leftMethod, rightMethod);
     }
 
-    private void displayCallGraph(Iterator<Edge> edges) {
+    private static DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
+        // Criar o grafo direcionado
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-        StringBuilder dotCode = new StringBuilder();
-        dotCode.append("digraph CallGraph {\n");
-
+        // Adicionar os métodos e as arestas ao grafo
         while (edges.hasNext()) {
             Edge edge = edges.next();
-            SootMethod srcMethod = (SootMethod) edge.getSrc();
-            SootMethod tgtMethod = (SootMethod) edge.getTgt();
-            dotCode.append("  \"").append(srcMethod).append("\" -> \"").append(tgtMethod).append("\";\n");
-            // Exibir a relação de chamada
-            //System.out.println("Método de origem: " + srcMethod);
-            //System.out.println("Método de destino: " + tgtMethod);
-            //System.out.println("----");
+            SootMethod src = (SootMethod) edge.getSrc();
+            SootMethod tgt = (SootMethod) edge.getTgt();
+
+            ModifiedMethod sctModifiedMethod = new ModifiedMethod(src.getSignature());
+            ModifiedMethod tgtModifiedMethod = new ModifiedMethod(tgt.getSignature());
+            graph.addVertex(sctModifiedMethod);
+            graph.addVertex(tgtModifiedMethod);
+            graph.addEdge(sctModifiedMethod, tgtModifiedMethod);
         }
 
-        dotCode.append("}");
-        System.out.println(dotCode.toString());
-        System.out.println("----");
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> invertedGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        convertToDotGraph(graph);
+        Graphs.addGraphReversed(invertedGraph, graph);
+        convertToDotGraph(invertedGraph);
 
+        return invertedGraph;
+    }
 
+    private static void convertToDotGraph(Graph<ModifiedMethod, DefaultEdge> graph) {
+        StringBuilder dot = new StringBuilder();
+        dot.append("digraph {\n");
+
+        // Adicionar vértices
+        for (ModifiedMethod vertex : graph.vertexSet()) {
+            dot.append("\t").append(vertex.getSignature()).append(";\n");
+        }
+
+        // Adicionar arestas
+        for (DefaultEdge  edge : graph.edgeSet()) {
+            ModifiedMethod source = graph.getEdgeSource(edge);
+            ModifiedMethod target = graph.getEdgeTarget(edge);
+            dot.append("\t").append(source.getSignature()).append(" -> ").append(target.getSignature()).append(";\n");
+        }
+
+        dot.append("}");
+
+        System.out.println(dot.toString());
     }
 
     private static SootMethod findMainMethod(SootClass sootClass) {

@@ -11,6 +11,7 @@ import gitManager.ModifiedLinesManager;
 import org.apache.commons.io.FileUtils;
 import project.MergeCommit;
 import project.Project;
+import services.dataCollectors.modifiedLinesCollector.ModifiedMethod;
 import services.outputProcessors.GenerateSootInputFilesOutputProcessor;
 import services.outputProcessors.soot.RunSootAnalysisOutputProcessor;
 
@@ -55,7 +56,7 @@ public class StaticAnalysisMerge {
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
             entrypointManager.configureSoot(dest.getPath());
-            entrypointManager.run(project, mergeCommit);
+            List<ModifiedMethod> entrypoint = entrypointManager.run(project, mergeCommit);
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();

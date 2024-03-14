@@ -1,0 +1,49 @@
+public class org.example.Main extends java.lang.Object
+{
+    private static int x;
+
+    public void <init>()
+    {
+        org.example.Main this;
+
+        this := @this: org.example.Main;
+
+        specialinvoke this.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+
+        args := @parameter0: java.lang.String[];
+
+        staticinvoke <org.example.Main: void l()>();
+
+        staticinvoke <org.example.Main: void r2()>();
+
+        return;
+    }
+
+    public static void l()
+    {
+        <org.example.Main: int x> = 0;
+
+        return;
+    }
+
+    public static void r()
+    {
+        <org.example.Main: int x> = 1;
+
+        return;
+    }
+
+    public static void r2()
+    {
+        staticinvoke <org.example.Main: void r()>();
+
+        return;
+    }
+}

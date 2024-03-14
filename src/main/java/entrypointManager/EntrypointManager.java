@@ -31,7 +31,7 @@ public class EntrypointManager {
         this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar");
     }
 
-    public void run(Project project,  MergeCommit mergeCommit){
+    public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit){
         Iterator<Edge> edges = getCallGraphFromMain();
         //displayCallGraph(edges);
         Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
@@ -43,7 +43,7 @@ public class EntrypointManager {
              right.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
         }
 
-        findCommonAncestor(edges, left, right);
+       return findCommonAncestor(edges, left, right);
     }
 
     public void configureSoot(String classpath) {
@@ -93,7 +93,12 @@ public class EntrypointManager {
      * @throws IllegalArgumentException Se leftChanges ou rightChanges estiverem vazios.
      * @throws RuntimeException         Se nenhum ancestral comum for encontrado.
      */
-    public List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
+<<<<<<< HEAD
+=======
+    private List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createAndInvertedDirectedGraph(edges);
+
+>>>>>>> 0448837aa892f1f20c1e82dc4c84c9a8f300487f
         if (leftChanges.isEmpty() || rightChanges.isEmpty()) {
             throw new IllegalArgumentException("leftChanges and rightChanges cannot be empty");
         }
@@ -102,8 +107,11 @@ public class EntrypointManager {
 
         for (ModifiedMethod leftMethod : leftChanges) {
             for (ModifiedMethod rightMethod : rightChanges) {
-                ModifiedMethod ancestorsForPair = findCommonAncestorForPair(edges, leftMethod, rightMethod);
-                commonAncestors.add(ancestorsForPair);
+                ModifiedMethod ancestorsForPair = findCommonAncestorForPair(graph, leftMethod, rightMethod);
+                if(ancestorsForPair != null){
+                    commonAncestors.add(ancestorsForPair);
+                }
+
             }
         }
 
@@ -117,24 +125,24 @@ public class EntrypointManager {
     /**
      * Método para encontrar o ancestral comum mais recente para um par de modificações.
      *
-     * @param edges        Iterador de arestas do grafo de chamadas.
+     * @param graph        O grafo de chamadas.
      * @param leftMethod   Método modificado do lado esquerdo do par.
      * @param rightMethod  Método modificado do lado direito do par.
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
-    public ModifiedMethod findCommonAncestorForPair(Iterator<Edge> edges, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
-        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> invertedGraph = createAndInvertedDirectedGraph(edges);
+<<<<<<< HEAD
 
-        LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(invertedGraph);
+=======
+    private ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+>>>>>>> 0448837aa892f1f20c1e82dc4c84c9a8f300487f
 
-        //ModifiedMethod leftModifiedMethod = new ModifiedMethod("<org.example.Main: void l()>");
-        //ModifiedMethod rightModifiedMethod = new ModifiedMethod("<org.example.Main: void r2()>");
+        LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(graph);
 
-        ModifiedMethod lca = lcaAlgorithm.getLCA(leftMethod, rightMethod);
-        System.out.println(lca);
+       if(graph.containsVertex(leftMethod) && graph.containsVertex(rightMethod)){
+           return lcaAlgorithm.getLCA(leftMethod, rightMethod);
+        }
+
         return null;
-
-       // return lcaAlgorithm.getLCA(leftMethod, rightMethod);
     }
 
     private static DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
@@ -154,12 +162,9 @@ public class EntrypointManager {
             graph.addEdge(sctModifiedMethod, tgtModifiedMethod);
         }
 
-        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> invertedGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         convertToDotGraph(graph);
-        Graphs.addGraphReversed(invertedGraph, graph);
-        convertToDotGraph(invertedGraph);
 
-        return invertedGraph;
+        return graph;
     }
 
     private static void convertToDotGraph(Graph<ModifiedMethod, DefaultEdge> graph) {

@@ -93,12 +93,10 @@ public class EntrypointManager {
      * @throws IllegalArgumentException Se leftChanges ou rightChanges estiverem vazios.
      * @throws RuntimeException         Se nenhum ancestral comum for encontrado.
      */
-<<<<<<< HEAD
-=======
-    private List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
+
+    public List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createAndInvertedDirectedGraph(edges);
 
->>>>>>> 0448837aa892f1f20c1e82dc4c84c9a8f300487f
         if (leftChanges.isEmpty() || rightChanges.isEmpty()) {
             throw new IllegalArgumentException("leftChanges and rightChanges cannot be empty");
         }
@@ -130,11 +128,9 @@ public class EntrypointManager {
      * @param rightMethod  Método modificado do lado direito do par.
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
-<<<<<<< HEAD
 
-=======
     private ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
->>>>>>> 0448837aa892f1f20c1e82dc4c84c9a8f300487f
+
 
         LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(graph);
 
@@ -144,8 +140,8 @@ public class EntrypointManager {
 
         return null;
     }
-
-    private static DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
+    //originalmente esse método é private static
+    public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
         // Criar o grafo direcionado
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
 

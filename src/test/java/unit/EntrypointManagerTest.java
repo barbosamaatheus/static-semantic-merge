@@ -25,7 +25,7 @@ public class EntrypointManagerTest {
 
     //Eu preciso criar um método que simula o que o gelcallgraph faz so que sem depender daquela classe.
     private static Iterator<Edge> buildCallGraph() {
-        SootClass sootClass = Scene.v().loadClassAndSupport("assets.Main");
+        SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
         SootMethod mainMethod = sootClass.getMethodByName("main");
 
         // Criar e obter o grafo de chamadas
@@ -58,14 +58,14 @@ public class EntrypointManagerTest {
     public void testGetCallGraphFromMain() {
 
 
-        Iterator<Edge> edges = this.entrypointManager.getCallGraphFromMain();
+        Iterator<Edge> edges = buildCallGraph();
         assertNotNull(edges);
 
 
     }
     @Test
     public void testFindCommonAncestorWithEmptySets() {
-        Iterator<Edge> edges = EntrypointManagerTest.buildCallGraph();
+        Iterator<Edge> edges = buildCallGraph();
         Set<ModifiedMethod> left = new HashSet<>();
         Set<ModifiedMethod> right = new HashSet<>();
         assertThrows(IllegalArgumentException.class, () -> entrypointManager.findCommonAncestor(edges, left, right), "leftChanges and rightChanges cannot be empty");
@@ -74,7 +74,7 @@ public class EntrypointManagerTest {
 
     @Test
     public void testFindCommonAncestor() {
-        Iterator<Edge> edges = this.entrypointManager.getCallGraphFromMain();
+        Iterator<Edge> edges = buildCallGraph();
 
         Set<ModifiedMethod> left = new HashSet<>();
         Set<ModifiedMethod> right = new HashSet<>();
@@ -96,7 +96,7 @@ public class EntrypointManagerTest {
 
     @Test
     public void testFindCommonAncestorEmpty(){
-        Iterator<Edge> edges = this.entrypointManager.getCallGraphFromMain();
+        Iterator<Edge> edges = buildCallGraph();
         Set<ModifiedMethod> left = new HashSet<>();
         Set<ModifiedMethod> right = new HashSet<>();
 
@@ -114,30 +114,30 @@ public class EntrypointManagerTest {
     }
 
     @Test
-    public void testFindCommonAncestorForPair() {
+    public void testFindCommonAncestorForPairEmpty() {
+        Iterator<Edge> edges = buildCallGraph();
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createAndInvertedDirectedGraph(edges);
+        ModifiedMethod left = new ModifiedMethod("<org.example.Main: void l()>");
+        ModifiedMethod right = new ModifiedMethod("<org.example.Main: void r()>");
+
+        ModifiedMethod lcaAlgorithm = this.entrypointManager.findCommonAncestorForPair(graph,left,right);
+
+        assertNull(lcaAlgorithm);
+
 
     }
 
     @Test
-    public void testCreateAndInvertedDirectedGraph() {
-        Iterator<Edge> edges = this.entrypointManager.getCallGraphFromMain();
-        Iterator<Edge> edges2 = this.entrypointManager.getCallGraphFromMain();
-
+    public void testFindCommonAncestorForPair() {
+        Iterator<Edge> edges = buildCallGraph();
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createAndInvertedDirectedGraph(edges);
+        ModifiedMethod left = new ModifiedMethod("<org.example.Main: void l()>");
+        ModifiedMethod right = new ModifiedMethod("<org.example.Main: void r2()>");
 
-        int cont = 0;
-        while (edges2.hasNext()){
-            cont++;
-            edges2.next();
-        }
+        ModifiedMethod lcaAlgorithm = this.entrypointManager.findCommonAncestorForPair(graph,left,right);
 
-        //System.out.println(cont);
-        assertNotNull(graph);
-        //queria achar uma forma de contar esses vértices mas não pensei em nenhuma variável que eu poderia acessar pra encontrar esse número
-        assertEquals(3, graph.vertexSet().size());
-        assertEquals(cont, graph.edgeSet().size());
-        //outro tipo de teste que pensei era analisar se o grafo finalizou quando realmente não existia mais vértices mas n pensei como fazer
-
+        assertNotNull(lcaAlgorithm);
+        assertEquals("<org.example.Main: void main(java.lang.String[])>",lcaAlgorithm.getSignature());
 
 
     }

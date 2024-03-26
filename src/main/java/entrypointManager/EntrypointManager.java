@@ -129,7 +129,8 @@ public class EntrypointManager {
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
 
-    private ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+    //originalmente private
+    public ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
 
 
         LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(graph);

@@ -32,4 +32,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+/sootOutput
+
 # End of https://www.toptal.com/developers/gitignore/api/gradle

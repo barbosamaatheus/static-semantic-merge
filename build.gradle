@@ -34,7 +34,6 @@ jar {
 }
 
 test {
-    minHeapSize = "256m" // initial heap size
     maxHeapSize = "1024m" // maximum heap size
     useJUnitPlatform()
 }

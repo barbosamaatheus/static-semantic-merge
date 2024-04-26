@@ -14,9 +14,9 @@ public class ModifiedLinesManager {
     FileManager fileManager;
     ModifiedMethodsHelper modifiedMethodsHelper;
 
-    public ModifiedLinesManager () {
-        this.modifiedLinesCollector = new ModifiedLinesCollector();
-        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar");
+    public ModifiedLinesManager (String dependenciesPath) {
+        this.modifiedLinesCollector = new ModifiedLinesCollector(dependenciesPath);
+        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar", dependenciesPath);
     }
 
     public List<CollectedMergeMethodData> collectData(Project project, MergeCommit mergeCommit) {

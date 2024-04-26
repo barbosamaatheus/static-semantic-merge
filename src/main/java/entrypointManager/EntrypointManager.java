@@ -26,9 +26,9 @@ public class EntrypointManager {
 
     ModifiedMethodsHelper modifiedMethodsHelper;
 
-    public EntrypointManager () {
-        this.modifiedLinesCollector = new ModifiedLinesCollector();
-        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar");
+    public EntrypointManager (String dependenciesPath) {
+        this.modifiedLinesCollector = new ModifiedLinesCollector(dependenciesPath);
+        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar", dependenciesPath);
     }
 
     public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit){
@@ -39,8 +39,8 @@ public class EntrypointManager {
         Set<ModifiedMethod> left = new HashSet<>();
         Set<ModifiedMethod> right = new HashSet<>();
         for (String filePath : mutuallyModifiedFiles) {
-             left.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getLeftSHA()));
-             right.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
+             left.addAll(this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getLeftSHA()));
+             right.addAll(this.modifiedMethodsHelper.getModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
         }
 
        return findCommonAncestor(edges, left, right);

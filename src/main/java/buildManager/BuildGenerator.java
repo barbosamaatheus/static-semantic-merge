@@ -1,5 +1,7 @@
 package buildManager;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,10 +23,24 @@ public class BuildGenerator {
 
     public Process generateBuild() throws IOException, InterruptedException {
         System.out.println("==== GENERATING BUILD ====");
-        File f = new File(this.mergePath + "gradlew.bat");
+
+        // Define the build file for each OS
+        String filename = "gradlew.bat";
+        String gradleComm = "";
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            filename = "gradlew";
+            gradleComm = "./";
+        }
+        gradleComm += filename + " build -x test";
+
+        File f = new File(this.mergePath + filename);
         Process proc = null;
         if(f.exists() && !f.isDirectory()) {
-            proc  = Runtime.getRuntime().exec("gradlew.bat build -x test");
+            if (SystemUtils.IS_OS_LINUX) {
+                // Give execution permission to the build file
+                Runtime.getRuntime().exec("chmod +x " + filename, null, new File(this.mergePath));
+            }
+            proc  = Runtime.getRuntime().exec(gradleComm, null, new File(this.mergePath));
             this.watchProcess(proc);
         }else{
             proc = Runtime.getRuntime().exec(this.mavenPath + "/mvn.cmd clean compile assembly:single");

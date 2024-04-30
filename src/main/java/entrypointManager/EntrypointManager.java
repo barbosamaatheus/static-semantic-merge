@@ -65,7 +65,7 @@ public class EntrypointManager {
 
     }
 
-    private Iterator<Edge> getCallGraphFromMain(){
+    public Iterator<Edge> getCallGraphFromMain(){
 
         SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
         SootMethod mainMethod = sootClass.getMethodByName("main"); //main // findMainMethod(sootClass);
@@ -93,7 +93,8 @@ public class EntrypointManager {
      * @throws IllegalArgumentException Se leftChanges ou rightChanges estiverem vazios.
      * @throws RuntimeException         Se nenhum ancestral comum for encontrado.
      */
-    private List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
+
+    public List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createAndInvertedDirectedGraph(edges);
 
         if (leftChanges.isEmpty() || rightChanges.isEmpty()) {
@@ -127,7 +128,10 @@ public class EntrypointManager {
      * @param rightMethod  Método modificado do lado direito do par.
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
-    private ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+
+    //originalmente private
+    public ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+
 
         LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(graph);
 
@@ -137,8 +141,8 @@ public class EntrypointManager {
 
         return null;
     }
-
-    private static DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
+    //originalmente esse método é private static
+    public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
         // Criar o grafo direcionado
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
 

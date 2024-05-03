@@ -34,8 +34,8 @@ public class StaticAnalysisMerge {
         BuildGenerator buildGenerator = new BuildGenerator(this.args[5], this.args[6], this.args[7]);
         CommitManager commitManager = new CommitManager(this.args);
         Project project = new Project("project", this.args[7]);
-        ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager();
-        EntrypointManager entrypointManager = new EntrypointManager();
+        ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager(this.args[4]);
+        EntrypointManager entrypointManager = new EntrypointManager(this.args[4]);
 
         try {
             //dependenciesManager.copyAuxFilesToProject(this.args[4]);

@@ -39,7 +39,7 @@ public class EntrypointManagerTest {
     @BeforeEach
     public void setup() {
         this.entrypointManager = new EntrypointManager("D:/Documents/development/UFPE/SSM/static-semantic-merge/dependencies/");
-        this.entrypointManager.configureSoot(this.CLASSPATH);
+        this.entrypointManager.configureSoot(this.CLASSPATH, "org.example.Main");
     }
 
     @Test
@@ -128,17 +128,17 @@ public class EntrypointManagerTest {
     }
 
     /**
-     * This test is for running locally only. It should not be run together with others (keep @Ignore).
-     * To run locally, remove @Ignore and adjust the project paths and MergeCommit commits.
+     * This test is for running locally only. It should not be run together with others (keep @Disabled).
+     * To run locally, remove @Disabled and adjust the project paths and MergeCommit commits.
      */
-    @Disabled
+   // @Disabled
     @Test
     public void testEntrypointManagerRun() {
         Project project = new Project("project", "D:/Documents/development/UFPE/SSM/Teste/");
-        MergeCommit mergeCommit = new MergeCommit("2199900a069e7bb82654193f001de183e2dfb99b",
+        MergeCommit mergeCommit = new MergeCommit("725d6b39edf282e1ab2922b11a66f1c091381ffe",
                 new String[]{"f051b15e85f4d9db61c9c1f87fd2a50e8182081a",
                         "fc789b8bc7d26a4ce9ded885cf68dd9f9567f3bb"},
-                "725d6b39edf282e1ab2922b11a66f1c091381ffe");
+                "2199900a069e7bb82654193f001de183e2dfb99b");
         List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit);
         assertEquals(1, entrypoints.size());
     }

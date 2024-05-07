@@ -44,7 +44,7 @@ public class EntrypointManager {
        return findCommonAncestor(edges, left, right);
     }
 
-    public void configureSoot(String classpath) {
+    public void configureSoot(String classpath, String classes) {
         // Configurar as opções do Soot
         String[] sootArgs = {
                 "-cp", classpath,
@@ -54,10 +54,10 @@ public class EntrypointManager {
                 "--allow-phantom-refs",
                 "-p", "jb", "use-original-names:true",
                 "-p", "cg.spark", "enabled:true",
-                "org.example.Main"
+                classes
         };
 
-        // Executar o Analisador de Ponto de Entrada do Soot
+
         soot.Main.main(sootArgs);
         Scene.v().loadNecessaryClasses();
 

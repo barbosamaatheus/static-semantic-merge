@@ -1,10 +1,8 @@
 package entrypointManager;
 
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
 import org.jgrapht.alg.interfaces.LowestCommonAncestorAlgorithm;
 import org.jgrapht.alg.lca.NaiveLCAFinder;
-import org.jgrapht.alg.lca.TarjanLCAFinder;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import project.MergeCommit;
@@ -39,8 +37,8 @@ public class EntrypointManager {
         Set<ModifiedMethod> left = new HashSet<>();
         Set<ModifiedMethod> right = new HashSet<>();
         for (String filePath : mutuallyModifiedFiles) {
-             left.addAll(this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getLeftSHA()));
-             right.addAll(this.modifiedMethodsHelper.getModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
+             left.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getLeftSHA()));
+             right.addAll(this.modifiedMethodsHelper.getAllModifiedMethods(project, filePath,  mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA()));
         }
 
        return findCommonAncestor(edges, left, right);

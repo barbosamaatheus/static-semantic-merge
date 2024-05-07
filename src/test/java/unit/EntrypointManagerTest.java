@@ -131,7 +131,7 @@ public class EntrypointManagerTest {
      * This test is for running locally only. It should not be run together with others (keep @Disabled).
      * To run locally, remove @Disabled and adjust the project paths and MergeCommit commits.
      */
-   // @Disabled
+    @Disabled
     @Test
     public void testEntrypointManagerRun() {
         Project project = new Project("project", "D:/Documents/development/UFPE/SSM/Teste/");

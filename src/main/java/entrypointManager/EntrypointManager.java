@@ -31,7 +31,7 @@ public class EntrypointManager {
 
     public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit){
         Iterator<Edge> edges = getCallGraphFromMain();
-        //displayCallGraph(edges);
+
         Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
 
         Set<ModifiedMethod> left = new HashSet<>();
@@ -57,7 +57,6 @@ public class EntrypointManager {
                 classes
         };
 
-
         soot.Main.main(sootArgs);
         Scene.v().loadNecessaryClasses();
 
@@ -68,13 +67,10 @@ public class EntrypointManager {
         SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
         SootMethod mainMethod = sootClass.getMethodByName("main"); //main // findMainMethod(sootClass);
 
-        // Criar e obter o grafo de chamadas
         CallGraph callGraph = Scene.v().getCallGraph();
 
-
         return callGraph.edgesOutOf(mainMethod);
-
-    };
+    }
 
     /**
      * Método para aplicar o algoritmo de busca do ancestral comum mais recente entre as alterações de left e right.
@@ -127,7 +123,6 @@ public class EntrypointManager {
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
 
-    //originalmente private
     public ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
 
 
@@ -139,7 +134,6 @@ public class EntrypointManager {
 
         return null;
     }
-    //originalmente esse método é private static
     public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
         // Criar o grafo direcionado
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
@@ -180,16 +174,7 @@ public class EntrypointManager {
 
         dot.append("}");
 
-        System.out.println(dot.toString());
-    }
-
-    private static SootMethod findMainMethod(SootClass sootClass) {
-        for (SootMethod method : sootClass.getMethods()) {
-            if (isMainMethod(method)) {
-                return method;
-            }
-        }
-        return null;
+        System.out.println(dot);
     }
 
     private static boolean isMainMethod(SootMethod method) {

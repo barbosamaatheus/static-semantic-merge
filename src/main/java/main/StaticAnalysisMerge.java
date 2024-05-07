@@ -1,6 +1,5 @@
 package main;
 
-import DependenciesManager.DependenciesManager;
 import buildManager.BuildGenerator;
 import csvManager.CsvManager;
 import entrypointManager.EntrypointManager;

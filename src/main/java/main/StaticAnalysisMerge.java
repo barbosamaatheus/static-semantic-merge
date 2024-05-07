@@ -31,9 +31,9 @@ public class StaticAnalysisMerge {
     public void run() {
         //DependenciesManager dependenciesManager = new DependenciesManager();
         MergeManager mergeManager = new MergeManager();
-        BuildGenerator buildGenerator = new BuildGenerator(this.args[5], this.args[6], this.args[7]);
+        BuildGenerator buildGenerator = new BuildGenerator(this.args[7], this.args[8], this.args[5]);
         CommitManager commitManager = new CommitManager(this.args);
-        Project project = new Project("project", this.args[7]);
+        Project project = new Project("project", this.args[5]);
         ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager(this.args[4]);
         EntrypointManager entrypointManager = new EntrypointManager(this.args[4]);
 
@@ -55,7 +55,7 @@ public class StaticAnalysisMerge {
 
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
-            entrypointManager.configureSoot(dest.getPath());
+            entrypointManager.configureSoot(dest.getPath(), this.args[6]);
             List<ModifiedMethod> entrypoint = entrypointManager.run(project, mergeCommit);
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);

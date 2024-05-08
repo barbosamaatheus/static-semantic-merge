@@ -25,28 +25,29 @@ public class Main {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
-        String h = cmd.getOptionValue("h");
-        String[] p = cmd.getOptionValues("p");
-        String b = cmd.getOptionValue("b");
+        String h = cmd.getOptionValue("hc");
+        String[] p = cmd.getOptionValues("pc");
+        String b = cmd.getOptionValue("bc");
         String ssm = cmd.getOptionValue("ssm");
+        String tpr = cmd.getOptionValue("tpr");
+        String m = cmd.getOptionValue("m");
         String gp = cmd.getOptionValue("gp");
-        String mvp = cmd.getOptionValue("mvp");
         String mp = cmd.getOptionValue("mp");
 
-        return new String[]{h, p[0], p[1], b, ssm, gp, mvp, mp};
+        return new String[]{h, p[0], p[1], b, ssm, tpr, m, gp, mp};
     }
 
     private void createOptions() {
         options = new Options();
-        Option headOption = Option.builder("h").argName("head")
+        Option headOption = Option.builder("hc").argName("head")
                 .required().hasArg().desc("the head commit")
                 .build();
 
-        Option parentsOption = Option.builder("p").argName("parents")
+        Option parentsOption = Option.builder("pc").argName("parents")
                 .required().hasArgs().valueSeparator(' ').desc("the parents commits")
                 .build();
 
-        Option baseOption = Option.builder("b").argName("base")
+        Option baseOption = Option.builder("bc").argName("base")
                 .required().hasArg().desc("the base commit")
                 .build();
 
@@ -54,26 +55,32 @@ public class Main {
                 .required().hasArg().desc("path to ssm folder")
                 .build();
 
+        Option targetProjectRootOption = Option.builder("tpr").argName("targetProjectRoot").hasArg()
+                .required().desc("path to target project root folder")
+                .build();
+
+        Option mainOption = Option.builder("m").argName("main").hasArg()
+                .required().desc("packagename to main class. Eg: org.example.Main")
+                .build();
+
         Option gradlePathOption = Option.builder("gp").argName("gradlePath")
                 .required().hasArg().desc("path to gradle bin")
                 .build();
 
 
-        Option mavenPathOption = Option.builder("mvp").argName("mavenPath").hasArg()
+        Option mavenPathOption = Option.builder("mp").argName("mavenPath").hasArg()
                 .required().desc("path to maven bin")
                 .build();
 
-        Option mergePathOption = Option.builder("mp").argName("mavenPath").hasArg()
-                .required().desc("path to marge folder")
-                .build();
 
         options.addOption(headOption);
         options.addOption(parentsOption);
         options.addOption(baseOption);
         options.addOption(ssmPathOption);
+        options.addOption(targetProjectRootOption);
+        options.addOption(mainOption);
         options.addOption(gradlePathOption);
         options.addOption(mavenPathOption);
-        options.addOption(mergePathOption);
     }
 
 }

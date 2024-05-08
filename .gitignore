@@ -8,6 +8,7 @@
 /data
 /build
 
+sootOutput
 !src/**/build/
 .idea
 # Ignore Gradle GUI config

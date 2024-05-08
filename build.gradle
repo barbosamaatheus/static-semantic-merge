@@ -18,6 +18,7 @@ dependencies {
     implementation 'ca.mcgill.sable:soot:4.0.0'
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation "org.eclipse.jgit:org.eclipse.jgit:5.5.+"
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
     implementation files ('dependencies/miningframework.jar')
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
@@ -25,7 +26,7 @@ dependencies {
 }
 
 jar {
-    from { (configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) } } {
+    from { (configurations.runtimeClasspath).collect { it.isDirectory() ? it : zipTree(it) } } {
         exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     }
     manifest {
@@ -34,5 +35,7 @@ jar {
 }
 
 test {
+    minHeapSize = "256m" // initial heap size
+    maxHeapSize = "1024m" // maximum heap size
     useJUnitPlatform()
 }

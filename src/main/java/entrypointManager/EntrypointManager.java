@@ -1,10 +1,8 @@
 package entrypointManager;
 
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
 import org.jgrapht.alg.interfaces.LowestCommonAncestorAlgorithm;
 import org.jgrapht.alg.lca.NaiveLCAFinder;
-import org.jgrapht.alg.lca.TarjanLCAFinder;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import project.MergeCommit;
@@ -26,14 +24,14 @@ public class EntrypointManager {
 
     ModifiedMethodsHelper modifiedMethodsHelper;
 
-    public EntrypointManager () {
-        this.modifiedLinesCollector = new ModifiedLinesCollector();
-        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar");
+    public EntrypointManager (String dependenciesPath) {
+        this.modifiedLinesCollector = new ModifiedLinesCollector(dependenciesPath);
+        this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar", dependenciesPath);
     }
 
     public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit){
         Iterator<Edge> edges = getCallGraphFromMain();
-        //displayCallGraph(edges);
+
         Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
 
         Set<ModifiedMethod> left = new HashSet<>();
@@ -46,7 +44,7 @@ public class EntrypointManager {
        return findCommonAncestor(edges, left, right);
     }
 
-    public void configureSoot(String classpath) {
+    public void configureSoot(String classpath, String classes) {
         // Configurar as opções do Soot
         String[] sootArgs = {
                 "-cp", classpath,
@@ -56,27 +54,23 @@ public class EntrypointManager {
                 "--allow-phantom-refs",
                 "-p", "jb", "use-original-names:true",
                 "-p", "cg.spark", "enabled:true",
-                "org.example.Main"
+                classes
         };
 
-        // Executar o Analisador de Ponto de Entrada do Soot
         soot.Main.main(sootArgs);
         Scene.v().loadNecessaryClasses();
 
     }
 
-    private Iterator<Edge> getCallGraphFromMain(){
+    public Iterator<Edge> getCallGraphFromMain(){
 
         SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
         SootMethod mainMethod = sootClass.getMethodByName("main"); //main // findMainMethod(sootClass);
 
-        // Criar e obter o grafo de chamadas
         CallGraph callGraph = Scene.v().getCallGraph();
 
-
         return callGraph.edgesOutOf(mainMethod);
-
-    };
+    }
 
     /**
      * Método para aplicar o algoritmo de busca do ancestral comum mais recente entre as alterações de left e right.
@@ -93,7 +87,8 @@ public class EntrypointManager {
      * @throws IllegalArgumentException Se leftChanges ou rightChanges estiverem vazios.
      * @throws RuntimeException         Se nenhum ancestral comum for encontrado.
      */
-    private List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
+
+    public List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createAndInvertedDirectedGraph(edges);
 
         if (leftChanges.isEmpty() || rightChanges.isEmpty()) {
@@ -127,7 +122,9 @@ public class EntrypointManager {
      * @param rightMethod  Método modificado do lado direito do par.
      * @return O ancestral comum mais recente ou null se nenhum for encontrado.
      */
-    private ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+
+    public ModifiedMethod findCommonAncestorForPair(DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph, ModifiedMethod leftMethod, ModifiedMethod rightMethod) {
+
 
         LowestCommonAncestorAlgorithm<ModifiedMethod> lcaAlgorithm = new NaiveLCAFinder<>(graph);
 
@@ -137,8 +134,7 @@ public class EntrypointManager {
 
         return null;
     }
-
-    private static DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
+    public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
         // Criar o grafo direcionado
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
@@ -178,16 +174,7 @@ public class EntrypointManager {
 
         dot.append("}");
 
-        System.out.println(dot.toString());
-    }
-
-    private static SootMethod findMainMethod(SootClass sootClass) {
-        for (SootMethod method : sootClass.getMethods()) {
-            if (isMainMethod(method)) {
-                return method;
-            }
-        }
-        return null;
+        System.out.println(dot);
     }
 
     private static boolean isMainMethod(SootMethod method) {

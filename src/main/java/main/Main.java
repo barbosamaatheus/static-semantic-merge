@@ -30,11 +30,12 @@ public class Main {
         String b = cmd.getOptionValue("bc");
         String ssm = cmd.getOptionValue("ssm");
         String tpr = cmd.getOptionValue("tpr");
+        String cn = cmd.getOptionValue("cn");
         String m = cmd.getOptionValue("m");
         String gp = cmd.getOptionValue("gp");
         String mp = cmd.getOptionValue("mp");
 
-        return new String[]{h, p[0], p[1], b, ssm, tpr, m, gp, mp};
+        return new String[]{h, p[0], p[1], b, ssm, tpr, cn, m, gp, mp};
     }
 
     private void createOptions() {
@@ -59,8 +60,11 @@ public class Main {
                 .required().desc("path to target project root folder")
                 .build();
 
-        Option mainOption = Option.builder("m").argName("main").hasArg()
+        Option classNameOption = Option.builder("cn").argName("className").hasArg()
                 .required().desc("packagename to main class. Eg: org.example.Main")
+                .build();
+
+        Option mainMethodOption = Option.builder("m").argName("mainMethod").hasArg().desc("name of the main method. Eg: main")
                 .build();
 
         Option gradlePathOption = Option.builder("gp").argName("gradlePath")
@@ -78,7 +82,8 @@ public class Main {
         options.addOption(baseOption);
         options.addOption(ssmPathOption);
         options.addOption(targetProjectRootOption);
-        options.addOption(mainOption);
+        options.addOption(classNameOption);
+        options.addOption(mainMethodOption);
         options.addOption(gradlePathOption);
         options.addOption(mavenPathOption);
     }

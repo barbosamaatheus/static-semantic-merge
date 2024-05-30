@@ -1,6 +1,7 @@
 package csvManager;
 
 import gitManager.CollectedMergeMethodData;
+import services.dataCollectors.modifiedLinesCollector.ModifiedMethod;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -42,13 +43,13 @@ public class CsvManager {
         assertTrue(csvOutputFile.exists());
     }
 
-    public void transformCollectedDataIntoCsv(List<CollectedMergeMethodData> collectedMergeMethodDataList, String destPath) throws IOException {
+    public void transformCollectedDataIntoCsv(List<CollectedMergeMethodData> collectedMergeMethodDataList, List<ModifiedMethod> entrypoints, String destPath) throws IOException {
         List<String[]> dataLines = new ArrayList<>();
-        dataLines.add(new String[] {"project", "merge commit", "className", "method", "left modifications","has_build","left deletions", "right modifications", "right deletions"});
+        dataLines.add(new String[] {"project", "merge commit", "className", "method", "left modifications","has_build","left deletions", "right modifications", "right deletions", "entrypoints"});
 
         for(CollectedMergeMethodData c : collectedMergeMethodDataList){
             dataLines.add(new String[] {c.getProject().getName(), c.getMergeCommit().getSHA(), c.getClassName(), c.getMethodSignature(), c.getLeftAddedLines().toString(),"true",
-                    c.getLeftDeletedLines().toString(), c.getRightAddedLines().toString(), c.getRightDeletedLines().toString()});
+                    c.getLeftDeletedLines().toString(), c.getRightAddedLines().toString(), c.getRightDeletedLines().toString(), entrypoints.toString()});
         }
         this.givenDataArray_whenConvertToCSV_thenOutputCreated(dataLines, destPath);
     }

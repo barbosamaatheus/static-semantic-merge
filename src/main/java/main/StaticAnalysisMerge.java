@@ -30,7 +30,7 @@ public class StaticAnalysisMerge {
     public void run() {
         //DependenciesManager dependenciesManager = new DependenciesManager();
         MergeManager mergeManager = new MergeManager();
-        BuildGenerator buildGenerator = new BuildGenerator(this.args[7], this.args[8], this.args[5]);
+        BuildGenerator buildGenerator = new BuildGenerator(this.args[8], this.args[9], this.args[5]);
         CommitManager commitManager = new CommitManager(this.args);
         Project project = new Project("project", this.args[5]);
         ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager(this.args[4]);
@@ -46,7 +46,7 @@ public class StaticAnalysisMerge {
 
             if(buildGeneration.exitValue() != 0) {
                 System.out.println("Could not generate a valid build");
-                mergeManager.revertCommint(mergeCommit.getLeftSHA());
+                //mergeManager.revertCommint(mergeCommit.getLeftSHA());
                 return;
             }
 
@@ -55,11 +55,11 @@ public class StaticAnalysisMerge {
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
             entrypointManager.configureSoot(dest.getPath(), this.args[6]);
-            List<ModifiedMethod> entrypoint = entrypointManager.run(project, mergeCommit);
+            List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit, this.args[6], this.args[7]);
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();
-            csvManager.transformCollectedDataIntoCsv(collectedMergeMethodDataList, ".");
+            csvManager.transformCollectedDataIntoCsv(collectedMergeMethodDataList, entrypoints, ".");
             csvManager.trimSpacesAndSpecialChars(new File("data/results-with-build-information.csv"));
 
 

@@ -93,24 +93,32 @@ public class CsvManager {
     }
 
     public void trimSpacesAndSpecialChars(File file) throws IOException {
-        if(file.exists()) {
+        if (file.exists()) {
             System.out.println(file.getAbsolutePath());
-            String lines = "";
+            StringBuilder lines = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String header = br.readLine();
+                lines.append(header).append("\n");
+
                 String line;
-                lines = lines + br.readLine() + "\n";
                 while ((line = br.readLine()) != null) {
-                    line = line.replaceAll(" ", "");
-                    line = line.replaceAll("[+^?<>|]*", "");
-                    System.out.println(line);
-                    lines = lines + line + "\n";
+                    String[] columns = line.split(";");
+                    for (int i = 0; i < columns.length; i++) {
+                        if (i != columns.length - 1) { // Apply trimming to all columns except the last one (entrypoints)
+                            columns[i] = columns[i].replaceAll(" ", "");
+                            columns[i] = columns[i].replaceAll("[+^?<>|]*", "");
+                        }
+                    }
+                    String adjustedLine = String.join(";", columns);
+                    System.out.println(adjustedLine);
+                    lines.append(adjustedLine).append("\n");
                 }
             }
 
-            PrintWriter writer = new PrintWriter(file);
-            writer.write(lines);
-            writer.close();
-        }else{
+            try (PrintWriter writer = new PrintWriter(file)) {
+                writer.write(lines.toString());
+            }
+        } else {
             System.out.println("file does not exist at: " + file.getAbsolutePath());
         }
     }

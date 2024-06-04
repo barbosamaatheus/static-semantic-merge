@@ -79,7 +79,7 @@ public class Main {
                 .build();
 
         Option scriptsPathOption = Option.builder("sp").argName("scriptsPath").hasArg()
-                .desc("path to ssm scripts folder")
+                .required().desc("path to ssm scripts folder")
                 .build();
 
 

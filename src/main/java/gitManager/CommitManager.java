@@ -4,16 +4,18 @@ import project.MergeCommit;
 
 public class CommitManager {
 
-    private String[] args;
     private String base;
     private String[] parents;
     private String head;
 
     public CommitManager(String[] args) {
-        this.args = args;
-        this.head = args[0];
-        this.parents = new String[]{args[1], args[2]};
-        this.base = args[3];
+        this(args[0], new String[]{args[1], args[2]}, args[3]);
+    }
+
+    public CommitManager(String head, String[] parents, String base) {
+        this.head = head;
+        this.parents = parents;
+        this.base = base;
     }
 
     public MergeCommit buildMergeCommit() {

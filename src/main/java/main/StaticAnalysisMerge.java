@@ -21,23 +21,23 @@ import java.util.List;
 
 public class StaticAnalysisMerge {
 
-    String[] args;
+    private final Arguments args;
 
-    StaticAnalysisMerge(String[] args){
+    StaticAnalysisMerge(Arguments args){
         this.args = args;
     }
 
     public void run() {
         //DependenciesManager dependenciesManager = new DependenciesManager();
         MergeManager mergeManager = new MergeManager();
-        BuildGenerator buildGenerator = new BuildGenerator(this.args[8], this.args[9], this.args[5]);
-        CommitManager commitManager = new CommitManager(this.args);
-        Project project = new Project("project", this.args[5]);
-        ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager(this.args[4]);
-        EntrypointManager entrypointManager = new EntrypointManager(this.args[4]);
+        BuildGenerator buildGenerator = new BuildGenerator(this.args.getGradlePath(), this.args.getMavenPath(), this.args.getTargetProjectRoot());
+        CommitManager commitManager = new CommitManager(this.args.getHead(), this.args.getParents(), this.args.getBase());
+        Project project = new Project("project", this.args.getTargetProjectRoot());
+        ModifiedLinesManager modifiedLinesManager = new ModifiedLinesManager(this.args.getSsmDependenciesPath());
+        EntrypointManager entrypointManager = new EntrypointManager(this.args.getSsmDependenciesPath());
 
         try {
-            //dependenciesManager.copyAuxFilesToProject(this.args[4]);
+            //dependenciesManager.copyAuxFilesToProject(this.args.getSsmPath());
 
             MergeCommit mergeCommit = commitManager.buildMergeCommit();
 
@@ -46,7 +46,7 @@ public class StaticAnalysisMerge {
 
             if(buildGeneration.exitValue() != 0) {
                 System.out.println("Could not generate a valid build");
-                //mergeManager.revertCommint(mergeCommit.getLeftSHA());
+                mergeManager.revertCommit(mergeCommit.getLeftSHA());
                 return;
             }
 
@@ -54,8 +54,8 @@ public class StaticAnalysisMerge {
 
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
-            entrypointManager.configureSoot(dest.getPath(), this.args[6]);
-            List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit, this.args[6], this.args[7]);
+            entrypointManager.configureSoot(dest.getPath(), this.args.getClassName());
+            List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit, this.args.getClassName(), this.args.getMainMethod());
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();
@@ -63,7 +63,7 @@ public class StaticAnalysisMerge {
             csvManager.trimSpacesAndSpecialChars(new File("data/results-with-build-information.csv"));
 
 
-            GenerateSootInputFilesOutputProcessor generateSootInputFilesOutputProcessor = new GenerateSootInputFilesOutputProcessor();
+            GenerateSootInputFilesOutputProcessor generateSootInputFilesOutputProcessor = new GenerateSootInputFilesOutputProcessor(this.args.getScriptsPath());
             generateSootInputFilesOutputProcessor.convertToSootScript(".");
 
             for(CollectedMergeMethodData data : collectedMergeMethodDataList) {
@@ -78,16 +78,16 @@ public class StaticAnalysisMerge {
             }
 
 
-            RunSootAnalysisOutputProcessor runSootAnalysisOutputProcessor = new RunSootAnalysisOutputProcessor();
+            RunSootAnalysisOutputProcessor runSootAnalysisOutputProcessor = new RunSootAnalysisOutputProcessor(this.args.getSsmDependenciesPath());
             runSootAnalysisOutputProcessor.executeAnalyses(".");
 
             File results = new File("./data/soot-results.csv");
 
             if(csvManager.hasConflict(results)){
-               // mergeManager.revertCommint(mergeCommit.getLeftSHA());
+               // mergeManager.revertCommit(mergeCommit.getLeftSHA());
             }
 
-            //dependenciesManager.deleteAuxFiles(this.args[4]);
+            //dependenciesManager.deleteAuxFiles(this.args.getSsmPath());
 
         } catch (IOException | InterruptedException /*| InterruptedException e*/e) {
             e.printStackTrace();

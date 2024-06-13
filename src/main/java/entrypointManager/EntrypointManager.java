@@ -29,8 +29,8 @@ public class EntrypointManager {
         this.modifiedMethodsHelper = new ModifiedMethodsHelper("diffj.jar", dependenciesPath);
     }
 
-    public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit){
-        Iterator<Edge> edges = getCallGraphFromMain();
+    public List<ModifiedMethod> run(Project project,  MergeCommit mergeCommit, String className, String methodName){
+        Iterator<Edge> edges = getCallGraphFromMain(className, methodName);
 
         Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
 
@@ -62,10 +62,15 @@ public class EntrypointManager {
 
     }
 
-    public Iterator<Edge> getCallGraphFromMain(){
+    public Iterator<Edge> getCallGraphFromMain(String className, String methodName){
 
-        SootClass sootClass = Scene.v().loadClassAndSupport("org.example.Main");
-        SootMethod mainMethod = sootClass.getMethodByName("main"); //main // findMainMethod(sootClass);
+        SootClass sootClass = Scene.v().loadClassAndSupport(className);
+        SootMethod mainMethod;
+        try {
+            mainMethod = sootClass.getMethodByName(methodName);
+        } catch (RuntimeException e) {
+            mainMethod = sootClass.getMethodByName("main");
+        }
 
         CallGraph callGraph = Scene.v().getCallGraph();
 
@@ -89,7 +94,7 @@ public class EntrypointManager {
      */
 
     public List<ModifiedMethod> findCommonAncestor(Iterator<Edge> edges, Set<ModifiedMethod> leftChanges, Set<ModifiedMethod> rightChanges) {
-        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createAndInvertedDirectedGraph(edges);
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = createDirectedGraph(edges);
 
         if (leftChanges.isEmpty() || rightChanges.isEmpty()) {
             throw new IllegalArgumentException("leftChanges and rightChanges cannot be empty");
@@ -103,7 +108,6 @@ public class EntrypointManager {
                 if(ancestorsForPair != null){
                     commonAncestors.add(ancestorsForPair);
                 }
-
             }
         }
 
@@ -134,7 +138,7 @@ public class EntrypointManager {
 
         return null;
     }
-    public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createAndInvertedDirectedGraph(Iterator<Edge> edges) {
+    public DefaultDirectedGraph<ModifiedMethod, DefaultEdge> createDirectedGraph(Iterator<Edge> edges) {
         // Criar o grafo direcionado
         DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
 

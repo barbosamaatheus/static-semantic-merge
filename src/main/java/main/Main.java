@@ -9,7 +9,7 @@ public class Main {
         Main m = new Main();
         m.createOptions();
         try {
-            String[] result = m.parseCommandLine(args);
+            Arguments result = m.parseCommandLine(args);
             StaticAnalysisMerge analysisMerge = new StaticAnalysisMerge(result);
             analysisMerge.run();
         } catch (ParseException e) {
@@ -21,20 +21,22 @@ public class Main {
         }
     }
 
-    public String[] parseCommandLine(String[] args) throws ParseException {
+    public Arguments parseCommandLine(String[] args) throws ParseException {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
         String h = cmd.getOptionValue("hc");
         String[] p = cmd.getOptionValues("pc");
         String b = cmd.getOptionValue("bc");
-        String ssm = cmd.getOptionValue("ssm");
+        String dp = cmd.getOptionValue("dp");
         String tpr = cmd.getOptionValue("tpr");
+        String cn = cmd.getOptionValue("cn");
         String m = cmd.getOptionValue("m");
         String gp = cmd.getOptionValue("gp");
         String mp = cmd.getOptionValue("mp");
+        String sp = cmd.getOptionValue("sp");
 
-        return new String[]{h, p[0], p[1], b, ssm, tpr, m, gp, mp};
+        return new Arguments(h, p, b, dp, tpr, cn, m, gp, mp, sp);
     }
 
     private void createOptions() {
@@ -51,16 +53,20 @@ public class Main {
                 .required().hasArg().desc("the base commit")
                 .build();
 
-        Option ssmPathOption = Option.builder("ssm").argName("mergerPath")
-                .required().hasArg().desc("path to ssm folder")
+        Option ssmDependenciesPathOption = Option.builder("dp").argName("ssmDependenciesPath")
+                .required().hasArg().desc("path to ssm dependencies folder")
                 .build();
 
         Option targetProjectRootOption = Option.builder("tpr").argName("targetProjectRoot").hasArg()
                 .required().desc("path to target project root folder")
                 .build();
 
-        Option mainOption = Option.builder("m").argName("main").hasArg()
+        Option classNameOption = Option.builder("cn").argName("className").hasArg()
                 .required().desc("packagename to main class. Eg: org.example.Main")
+                .build();
+
+        Option mainMethodOption = Option.builder("m").argName("mainMethod").hasArg()
+                .desc("name of the main method. Eg: main")
                 .build();
 
         Option gradlePathOption = Option.builder("gp").argName("gradlePath")
@@ -72,15 +78,21 @@ public class Main {
                 .required().desc("path to maven bin")
                 .build();
 
+        Option scriptsPathOption = Option.builder("sp").argName("scriptsPath").hasArg()
+                .required().desc("path to ssm scripts folder")
+                .build();
+
 
         options.addOption(headOption);
         options.addOption(parentsOption);
         options.addOption(baseOption);
-        options.addOption(ssmPathOption);
+        options.addOption(ssmDependenciesPathOption);
         options.addOption(targetProjectRootOption);
-        options.addOption(mainOption);
+        options.addOption(classNameOption);
+        options.addOption(mainMethodOption);
         options.addOption(gradlePathOption);
         options.addOption(mavenPathOption);
+        options.addOption(scriptsPathOption);
     }
 
 }

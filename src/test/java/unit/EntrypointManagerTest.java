@@ -2,11 +2,8 @@ package unit;
 
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import project.MergeCommit;
-import project.Project;
 import services.dataCollectors.modifiedLinesCollector.ModifiedMethod;
 import soot.Scene;
 import soot.SootClass;
@@ -38,7 +35,7 @@ public class EntrypointManagerTest {
 
     @BeforeEach
     public void setup() {
-        this.entrypointManager = new EntrypointManager("D:/Documents/development/UFPE/SSM/static-semantic-merge/dependencies/");
+        this.entrypointManager = new EntrypointManager("dependencies/");
         this.entrypointManager.configureSoot(this.CLASSPATH, "org.example.Main");
     }
 
@@ -105,7 +102,7 @@ public class EntrypointManagerTest {
     @Test
     public void testFindCommonAncestorForPairEmpty() {
         Iterator<Edge> edges = buildCallGraph();
-        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createAndInvertedDirectedGraph(edges);
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createDirectedGraph(edges);
         ModifiedMethod left = new ModifiedMethod("<org.example.Main: void l()>");
         ModifiedMethod right = new ModifiedMethod("<org.example.Main: void r()>");
 
@@ -117,7 +114,7 @@ public class EntrypointManagerTest {
     @Test
     public void testFindCommonAncestorForPair() {
         Iterator<Edge> edges = buildCallGraph();
-        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createAndInvertedDirectedGraph(edges);
+        DefaultDirectedGraph<ModifiedMethod, DefaultEdge> graph = this.entrypointManager.createDirectedGraph(edges);
         ModifiedMethod left = new ModifiedMethod("<org.example.Main: void l()>");
         ModifiedMethod right = new ModifiedMethod("<org.example.Main: void r2()>");
 
@@ -125,22 +122,6 @@ public class EntrypointManagerTest {
 
         assertNotNull(lcaAlgorithm);
         assertEquals("<org.example.Main: void main(java.lang.String[])>", lcaAlgorithm.getSignature());
-    }
-
-    /**
-     * This test is for running locally only. It should not be run together with others (keep @Disabled).
-     * To run locally, remove @Disabled and adjust the project paths and MergeCommit commits.
-     */
-    @Disabled
-    @Test
-    public void testEntrypointManagerRun() {
-        Project project = new Project("project", "D:/Documents/development/UFPE/SSM/Teste/");
-        MergeCommit mergeCommit = new MergeCommit("725d6b39edf282e1ab2922b11a66f1c091381ffe",
-                new String[]{"f051b15e85f4d9db61c9c1f87fd2a50e8182081a",
-                        "fc789b8bc7d26a4ce9ded885cf68dd9f9567f3bb"},
-                "2199900a069e7bb82654193f001de183e2dfb99b");
-        List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit);
-        assertEquals(1, entrypoints.size());
     }
 
 }

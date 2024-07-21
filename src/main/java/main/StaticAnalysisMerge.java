@@ -15,6 +15,7 @@ import services.outputProcessors.GenerateSootInputFilesOutputProcessor;
 import services.outputProcessors.soot.RunSootAnalysisOutputProcessor;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -75,6 +76,18 @@ public class StaticAnalysisMerge {
 
                 csvManager.trimBlankLines(left);
                 csvManager.trimBlankLines(right);
+
+                FileWriter fw = new FileWriter(path + "/modified-lines.txt");
+                try {
+                    fw.write("Class: " + data.getClassName() + "\n");
+                    fw.write("Left added lines: " + data.getLeftAddedLines().toString() + "\n");
+                    fw.write("Left deleted lines: " + data.getLeftDeletedLines().toString() + "\n");
+                    fw.write("Right added lines: " + data.getRightAddedLines().toString() + "\n");
+                    fw.write("Right deleted lines: " + data.getRightDeletedLines().toString() + "\n\n");
+                } catch (Exception e) {
+                    System.out.println("error exporting the modified lines for project " + data.getProject().getName() + " " + e.getMessage());
+                }
+                fw.close();
             }
 
 

@@ -21,27 +21,41 @@ public class ModifiedLinesManager {
 
     public List<CollectedMergeMethodData> collectData(Project project, MergeCommit mergeCommit) {
         List<CollectedMergeMethodData> collectedMergeMethodDataList = new ArrayList<>();
-       Set<String> mutuallyModifiedFiles = this.modifiedLinesCollector.getFilesModifiedByBothParents(project, mergeCommit);
 
-        for (String filePath : mutuallyModifiedFiles) {
-            Set<ModifiedMethod> allModifiedMethods = this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getSHA());
-            Map<String, Tuple2<ModifiedMethod, ModifiedMethod>> mutuallyModifiedMethods = this.modifiedLinesCollector.getMutuallyModifiedMethods(project, mergeCommit, filePath);
+        // Get all modified files in the merge commit
+        Set<String> allModifiedFiles = this.modifiedLinesCollector.getAllModifiedFiles(project, mergeCommit);
 
-            boolean fileHasMutuallyModifiedMethods = !mutuallyModifiedMethods.isEmpty();
-            if (fileHasMutuallyModifiedMethods) {
-                String className = TypeNameHelper.getFullyQualifiedName(project, filePath, mergeCommit.getAncestorSHA());
+        for (String filePath : allModifiedFiles) {
+            System.out.println("Collecting data for file: " + filePath);
+            // For each modified file, get the modified methods
+            Set<ModifiedMethod> allModifiedMethodsSet = this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getSHA());
+            Set<ModifiedMethod> leftModifiedMethods = this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getLeftSHA());
+            Set<ModifiedMethod> rightModifiedMethods = this.modifiedMethodsHelper.getModifiedMethods(project, filePath, mergeCommit.getAncestorSHA(), mergeCommit.getRightSHA());
 
-                for (ModifiedMethod method : allModifiedMethods) {
-                    Tuple2<ModifiedMethod, ModifiedMethod> leftAndRightMethods = mutuallyModifiedMethods.get(method.getSignature());
-
-                    boolean methodWasModifiedByBothParents = leftAndRightMethods != null;
-                    if (methodWasModifiedByBothParents) {
-                        collectedMergeMethodDataList.add(this.collectMethodData(leftAndRightMethods, method, project, mergeCommit, className));
-                    }
-
-                }
-
+            // Create a map with all modified methods, with the left and right methods as values
+            Map<String, Tuple2<ModifiedMethod, ModifiedMethod>> allModifiedMethods = new HashMap<>();
+            for (ModifiedMethod leftMethod : leftModifiedMethods) {
+                allModifiedMethods.put(leftMethod.getSignature(), new Tuple2<>(leftMethod, new ModifiedMethod(leftMethod.getSignature())));
             }
+
+            for (ModifiedMethod rightMethod : rightModifiedMethods) {
+                if (allModifiedMethods.containsKey(rightMethod.getSignature())) {
+                    allModifiedMethods.computeIfPresent(rightMethod.getSignature(), (k, leftTuple) -> new Tuple2<>(leftTuple.getV1(), rightMethod));
+                } else {
+                    allModifiedMethods.put(rightMethod.getSignature(), new Tuple2<>(new ModifiedMethod(rightMethod.getSignature()), rightMethod));
+                }
+            }
+
+            // Get the fully qualified class name
+            String className = TypeNameHelper.getFullyQualifiedName(project, filePath, mergeCommit.getAncestorSHA());
+
+            // For each modified method, collect the data
+            for (ModifiedMethod method : allModifiedMethodsSet) {
+                Tuple2<ModifiedMethod, ModifiedMethod> leftAndRightMethods = allModifiedMethods.get(method.getSignature());
+                System.out.println("Collecting data for method: " + method.getSignature());
+                collectedMergeMethodDataList.add(this.collectMethodData(leftAndRightMethods, method, project, mergeCommit, className));
+            }
+
         }
 
         System.out.println(project.getName() + " - ModifiedLinesCollector collection finished");

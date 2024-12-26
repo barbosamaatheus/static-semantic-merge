@@ -17,6 +17,7 @@ import services.outputProcessors.soot.RunSootAnalysisOutputProcessor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,8 +56,16 @@ public class StaticAnalysisMerge {
 
             File dest = new File("files/project/" + mergeCommit.getSHA() + "/original-without-dependencies/merge/build.jar");
             FileUtils.copyFile(buildJar, dest);
-            entrypointManager.configureSoot(dest.getPath(), this.args.getClassName());
-            List<ModifiedMethod> entrypoints = entrypointManager.run(project, mergeCommit, this.args.getClassName(), this.args.getMainMethod());
+
+            List<ModifiedMethod> entrypoints = new ArrayList<>();
+            if (this.args.getEntrypoints() != null && this.args.getEntrypoints().length > 0) {
+                for (String entrypoint : this.args.getEntrypoints()) {
+                    entrypoints.add(new ModifiedMethod(entrypoint));
+                }
+            } else {
+                entrypointManager.configureSoot(dest.getPath(), this.args.getClassName());
+                entrypoints = entrypointManager.run(project, mergeCommit, this.args.getClassName(), this.args.getMainMethod());
+            }
 
             List<CollectedMergeMethodData> collectedMergeMethodDataList = modifiedLinesManager.collectData(project, mergeCommit);
             CsvManager csvManager = new CsvManager();

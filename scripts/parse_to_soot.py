@@ -16,7 +16,9 @@ output_path = sys.argv[1].rstrip("/") # get output path passed as cli argument
 def export_csv():
     print ("Running parse to soot")
     scenarios = read_output(output_path)
-    
+
+    result = []
+    result_reverse = []
     for scenario in scenarios:
         base_path = get_scenario_base_path(scenario)
 
@@ -25,9 +27,6 @@ def export_csv():
             right_modifications = parse_modifications(scenario[RIGHT_MODIFICATIONS])
             class_name = scenario[CLASS_NAME]
             method = scenario[METHOD]
-
-            result = []
-            result_reverse = []
 
             for line in left_modifications:
                 if line not in right_modifications:
@@ -38,6 +37,13 @@ def export_csv():
                 if line not in left_modifications:
                     result.append([class_name, "source", line])
                     result_reverse.append([class_name, "sink", line])
+
+    for scenario in scenarios:
+        base_path = get_scenario_base_path(scenario)
+
+        if scenario[HAS_BUILD] == "true":
+            class_name = scenario[CLASS_NAME]
+            method = scenario[METHOD]
 
             if result:
                 class_method_folder = base_path + "/changed-methods/" + class_name + "/" + method

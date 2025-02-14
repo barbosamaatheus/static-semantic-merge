@@ -14,11 +14,8 @@ import services.dataCollectors.modifiedLinesCollector.ModifiedMethod;
 import services.outputProcessors.GenerateSootInputFilesOutputProcessor;
 import services.outputProcessors.soot.RunSootAnalysisOutputProcessor;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 
 public class StaticAnalysisMerge {
@@ -76,6 +73,7 @@ public class StaticAnalysisMerge {
             GenerateSootInputFilesOutputProcessor generateSootInputFilesOutputProcessor = new GenerateSootInputFilesOutputProcessor(this.args.getScriptsPath());
             generateSootInputFilesOutputProcessor.convertToSootScript(".");
 
+            Map<String, Set<Integer>[]> modifications = new HashMap<>();
             for(CollectedMergeMethodData data : collectedMergeMethodDataList) {
                 String path = "files/"+ data.getProject().getName() + "/" + mergeCommit.getSHA() + "/changed-methods/" + data.getClassName() +"/" + data.getMethodSignature();
                 path = path.replaceAll(" ", "");
@@ -86,19 +84,44 @@ public class StaticAnalysisMerge {
                 csvManager.trimBlankLines(left);
                 csvManager.trimBlankLines(right);
 
+                if (!modifications.containsKey(data.getClassName())) {
+                    Set<Integer>[] classModifications = new Set[4];
+                    classModifications[0] = data.getLeftAddedLines();
+                    classModifications[1] = data.getLeftDeletedLines();
+                    classModifications[2] = data.getRightAddedLines();
+                    classModifications[3] = data.getRightDeletedLines();
+
+                    modifications.put(data.getClassName(), classModifications);
+                } else {
+                    Set<Integer>[] classModifications = modifications.get(data.getClassName());
+                    classModifications[0].addAll(data.getLeftAddedLines());
+                    classModifications[1].addAll(data.getLeftDeletedLines());
+                    classModifications[2].addAll(data.getRightAddedLines());
+                    classModifications[3].addAll(data.getRightDeletedLines());
+                }
+            }
+
+            // Exporting the modified lines
+            for(CollectedMergeMethodData data : collectedMergeMethodDataList) {
+                String path = "files/" + data.getProject().getName() + "/" + mergeCommit.getSHA() + "/changed-methods/" + data.getClassName() + "/" + data.getMethodSignature();
+                path = path.replaceAll(" ", "");
+                path = path.replaceAll("[+^?<>|]*", "");
+
                 FileWriter fw = new FileWriter(path + "/modified-lines.txt");
-                try {
-                    fw.write("Class: " + data.getClassName() + "\n");
-                    fw.write("Left added lines: " + data.getLeftAddedLines().toString() + "\n");
-                    fw.write("Left deleted lines: " + data.getLeftDeletedLines().toString() + "\n");
-                    fw.write("Right added lines: " + data.getRightAddedLines().toString() + "\n");
-                    fw.write("Right deleted lines: " + data.getRightDeletedLines().toString() + "\n\n");
-                } catch (Exception e) {
-                    System.out.println("error exporting the modified lines for project " + data.getProject().getName() + " " + e.getMessage());
+                for (String className : modifications.keySet()) {
+                    Set<Integer>[] classModifications = modifications.get(className);
+                    try {
+                        fw.write("Class: " + className + "\n");
+                        fw.write("Left added lines: " + classModifications[0].toString() + "\n");
+                        fw.write("Left deleted lines: " + classModifications[1].toString() + "\n");
+                        fw.write("Right added lines: " + classModifications[2].toString() + "\n");
+                        fw.write("Right deleted lines: " + classModifications[3].toString() + "\n\n");
+                    } catch (Exception e) {
+                        System.out.println("error exporting the modified lines for project " + data.getProject().getName() + " " + e.getMessage());
+                    }
                 }
                 fw.close();
             }
-
 
             RunSootAnalysisOutputProcessor runSootAnalysisOutputProcessor = new RunSootAnalysisOutputProcessor(this.args.getSsmDependenciesPath());
             runSootAnalysisOutputProcessor.executeAnalyses(".");

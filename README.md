@@ -66,13 +66,17 @@ Também é necessário instalar o Python versão 3.7.x ou mais recente. Isso é 
 A CLI possui a seguinte página de ajuda:
 ```
 usage: java Main
- -b <base>           the base commit
- -gp <gradlePath>    path to gradle bin
- -h <head>           the head commit
- -mp <mavenPath>     path to marge folder
- -mvp <mavenPath>    path to maven bin
- -p <parents>        the parents commits
- -ssm <mergerPath>   path to ssm folder
+ -hc <head>                 the head commit
+ -pc <parents>              the parents commits
+ -bc <base>                 the base commit
+ -dp <ssmDependenciesPath>  path to ssm dependencies folder
+ -tpr <targetProjectRoot>   path to target project root folder
+ -cn <className>            packagename to main class. Eg: org.example.Main
+ -m <mainMethod>            name of the main method. Eg: main
+ -gp <gradlePath>           path to gradle bin
+ -mp <mavenPath>            path to maven bin
+ -sp <scriptsPath>          path to ssm scripts folder
+ -ep <entrypoints>          entrypoints to be analyzed
 ```
 
 O resultado será escrito em `data/soot-results.csv`

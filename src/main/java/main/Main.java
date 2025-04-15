@@ -35,8 +35,9 @@ public class Main {
         String gp = cmd.getOptionValue("gp");
         String mp = cmd.getOptionValue("mp");
         String sp = cmd.getOptionValue("sp");
+        String[] ep = cmd.getOptionValues("ep");
 
-        return new Arguments(h, p, b, dp, tpr, cn, m, gp, mp, sp);
+        return new Arguments(h, p, b, dp, tpr, cn, m, gp, mp, sp, ep);
     }
 
     private void createOptions() {
@@ -82,6 +83,10 @@ public class Main {
                 .required().desc("path to ssm scripts folder")
                 .build();
 
+        Option entrypointsOption = Option.builder("ep").argName("entrypoints")
+                .hasArgs().valueSeparator(',').desc("entrypoints to be analyzed")
+                .build();
+
 
         options.addOption(headOption);
         options.addOption(parentsOption);
@@ -93,6 +98,7 @@ public class Main {
         options.addOption(gradlePathOption);
         options.addOption(mavenPathOption);
         options.addOption(scriptsPathOption);
+        options.addOption(entrypointsOption);
     }
 
 }
